@@ -10,9 +10,10 @@ podTemplate(label: label,
     node(label) {
         container("docker") {
             stage("docker") {
+                checkout scm
                 withCredentials([usernamePassword(credentialsId: 'dockerhubstu', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     sh '''
-                    cd upr-reporter
+                    ls
                     docker login -p ${PASSWORD} -u ${USER} 
                     docker version
                     docker build . -t stuartcbrown:latest
