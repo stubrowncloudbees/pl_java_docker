@@ -17,7 +17,7 @@ podTemplate(label: label,
                     ls
                     docker login -p ${PASSWORD} -u ${USER} 
                     docker version
-                    docker build . -t ${image_name}
+                    docker build . -t ${env.image_name}
                     docker push ${image_name}
                 '''
                 }
