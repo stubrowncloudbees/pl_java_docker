@@ -1,0 +1,43 @@
+def label = "gradle-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'dsscore', image: 'husqvarnadss-docker-local.jfrog.io/dsscore:1.0', imagePullSecrets: [[$class: 'PodImagePullSecret', name: 'docker-artifactory-key']], args: 'cat', command: '/bin/sh -c', ttyEnabled: true)
+],
+volumes: [
+  hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+]) {
+     node(label) {
+        container("dsscore") {
+            stage("checkout") {
+checkout scm
+            }
+            stage("build") {
+                sh '''
+                cd upr-reporter
+                ./gradlew build shadowJar
+            '''
+            }
+            stage("stash") {
+             stash includes: 'upr-reporter/build/libs/**.jar', name: 'stash'
+            }
+        }
+        container("dsscore") {
+            stage("docker") {
+                withCredentials([usernamePassword(credentialsId: 'artifactory', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
+                    sh '''
+                    cd upr-reporter
+                    docker login -p ${PASSWORD} -u ${USER} https://husqvarnadss-docker-local.jfrog.io
+                    docker version
+                    docker build . -t 053441872638.dkr.ecr.us-east-1.amazonaws.com/poc/cje-repository/upr-reporter:latest
+                '''
+                }
+            }
+            stage("push to ECR") {
+                sh '''
+                  $(/root/bin/aws ecr get-login --registry-ids 053441872638 --region us-east-1 --no-include-email)
+                  docker push 053441872638.dkr.ecr.us-east-1.amazonaws.com/poc/cje-repository/upr-reporter:latest
+                '''
+            }
+        }
+    }
+}
+
