@@ -14,10 +14,10 @@ podTemplate(label: label,
                 checkout scm
                 echo image_name
                 withCredentials([usernamePassword(credentialsId: 'dockerhubstu', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
-                   
+
 
                     sh 'docker login -p ${PASSWORD} -u ${USER}'
-                    sh 'docker build . -t $image_name'
+                    sh "docker build . -t $image_name"
                     sh 'docker push $mage_name'
 
                 }
