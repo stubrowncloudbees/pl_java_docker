@@ -1,4 +1,3 @@
-Stus-MBP:git browns$ more ./jenkins_tests/Dockerfile
 # use a node base image
 FROM node:latest
 
