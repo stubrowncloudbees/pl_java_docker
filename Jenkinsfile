@@ -12,6 +12,7 @@ podTemplate(label: label,
         container("docker") {
             stage("docker") {
                 checkout scm
+                echo image_name
                 withCredentials([usernamePassword(credentialsId: 'dockerhubstu', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     sh '''
                     ls
