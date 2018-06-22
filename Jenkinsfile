@@ -1,4 +1,4 @@
-def label = "gradle-${UUID.randomUUID().toString()}"
+def label = "pl_scripted_docker_socket-${UUID.randomUUID().toString()}"
 def image_name = "stuartcbrown/jentest:${label}"
 podTemplate(label: label,
         containers: [
